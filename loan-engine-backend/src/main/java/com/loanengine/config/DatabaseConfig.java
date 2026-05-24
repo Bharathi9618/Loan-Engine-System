@@ -51,7 +51,11 @@ public class DatabaseConfig {
             jdbcUrl = parsed.jdbcUrl();
         }
 
-        log.info("Database host configured for production");
+        if (!jdbcUrl.contains("sslmode=")) {
+            jdbcUrl += (jdbcUrl.contains("?") ? "&" : "?") + "sslmode=require";
+        }
+
+        log.info("Connecting to database host: {}", extractHost(jdbcUrl));
 
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcUrl);
@@ -59,9 +63,24 @@ public class DatabaseConfig {
         if (username != null) config.setUsername(username);
         if (password != null) config.setPassword(password);
         config.setMaximumPoolSize(5);
+        config.setConnectionTimeout(30_000);
+        config.addDataSourceProperty("sslmode", "require");
 
-        return new HikariDataSource(config);
+        try {
+            return new HikariDataSource(config);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Cannot connect to Neon. Use the POOLED connection string from Neon dashboard " +
+                            "(host must contain '-pooler'). Also verify DB_USERNAME and DB_PASSWORD.", e);
+        }
     }
+
+    private static String extractHost(String jdbcUrl) {
+        try {
+            return URI.create(jdbcUrl.replace("jdbc:", "")).getHost();
+        } catch (Exception e) {
+            return "unknown";
+        }
 
     static String toJdbcUrl(String url) {
         String trimmed = url.trim();
