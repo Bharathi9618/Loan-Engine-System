@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/rules")
+@RequestMapping("/api/admin/rules")
 @RequiredArgsConstructor
 public class RuleController {
 

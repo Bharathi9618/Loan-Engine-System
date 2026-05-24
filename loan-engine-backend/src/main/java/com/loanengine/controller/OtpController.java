@@ -15,7 +15,7 @@ import java.util.Map;
  * Optional OTP resend endpoint (auth flows use AuthController).
  */
 @RestController
-@RequestMapping("/otp")
+@RequestMapping("/api/otp")
 @RequiredArgsConstructor
 public class OtpController {
 
