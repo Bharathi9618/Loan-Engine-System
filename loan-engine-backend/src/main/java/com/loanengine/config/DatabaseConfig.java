@@ -40,7 +40,7 @@ public class DatabaseConfig {
                 env.getProperty("DB_PASSWORD"));
 
         String jdbcUrl = toJdbcUrl(rawUrl);
-        if (jdbcUrl.startsWith("jdbc:postgresql://") && (username == null || password == null)) {
+        if (rawUrl.contains("@") || jdbcUrl.contains("@")) {
             var parsed = parsePostgresUrl(rawUrl);
             if (username == null)
                 username = parsed.username();
