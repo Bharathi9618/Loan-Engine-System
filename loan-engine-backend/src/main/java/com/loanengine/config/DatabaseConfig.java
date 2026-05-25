@@ -24,30 +24,28 @@ public class DatabaseConfig {
     public DataSource dataSource(Environment env) {
         String rawUrl = firstNonBlank(
                 env.getProperty("SPRING_DATASOURCE_URL"),
-                env.getProperty("DATABASE_URL")
-        );
+                env.getProperty("DATABASE_URL"));
 
         if (rawUrl == null) {
             throw new IllegalStateException(
                     "Database URL missing on Render. Set SPRING_DATASOURCE_URL or DATABASE_URL. " +
-                            "Example: jdbc:postgresql://ep-xxx.neon.tech:5432/neondb?sslmode=require"
-            );
+                            "Example: jdbc:postgresql://ep-xxx.neon.tech:5432/neondb?sslmode=require");
         }
 
         String username = firstNonBlank(
                 env.getProperty("SPRING_DATASOURCE_USERNAME"),
-                env.getProperty("DB_USERNAME")
-        );
+                env.getProperty("DB_USERNAME"));
         String password = firstNonBlank(
                 env.getProperty("SPRING_DATASOURCE_PASSWORD"),
-                env.getProperty("DB_PASSWORD")
-        );
+                env.getProperty("DB_PASSWORD"));
 
         String jdbcUrl = toJdbcUrl(rawUrl);
         if (jdbcUrl.startsWith("jdbc:postgresql://") && (username == null || password == null)) {
             var parsed = parsePostgresUrl(rawUrl);
-            if (username == null) username = parsed.username();
-            if (password == null) password = parsed.password();
+            if (username == null)
+                username = parsed.username();
+            if (password == null)
+                password = parsed.password();
             jdbcUrl = parsed.jdbcUrl();
         }
 
@@ -60,8 +58,10 @@ public class DatabaseConfig {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcUrl);
         config.setDriverClassName("org.postgresql.Driver");
-        if (username != null) config.setUsername(username);
-        if (password != null) config.setPassword(password);
+        if (username != null)
+            config.setUsername(username);
+        if (password != null)
+            config.setPassword(password);
         config.setMaximumPoolSize(5);
         config.setConnectionTimeout(30_000);
         config.addDataSourceProperty("sslmode", "require");
@@ -71,7 +71,8 @@ public class DatabaseConfig {
         } catch (Exception e) {
             throw new IllegalStateException(
                     "Cannot connect to Neon. Use the POOLED connection string from Neon dashboard " +
-                            "(host must contain '-pooler'). Also verify DB_USERNAME and DB_PASSWORD.", e);
+                            "(host must contain '-pooler'). Also verify DB_USERNAME and DB_PASSWORD.",
+                    e);
         }
     }
 
@@ -81,6 +82,7 @@ public class DatabaseConfig {
         } catch (Exception e) {
             return "unknown";
         }
+    }
 
     static String toJdbcUrl(String url) {
         String trimmed = url.trim();
@@ -110,7 +112,8 @@ public class DatabaseConfig {
             if (userInfo != null && !userInfo.isBlank()) {
                 String[] parts = userInfo.split(":", 2);
                 user = decode(parts[0]);
-                if (parts.length > 1) pass = decode(parts[1]);
+                if (parts.length > 1)
+                    pass = decode(parts[1]);
             }
 
             String query = uri.getRawQuery();
@@ -138,5 +141,6 @@ public class DatabaseConfig {
         return null;
     }
 
-    private record ParsedUrl(String jdbcUrl, String username, String password) {}
+    private record ParsedUrl(String jdbcUrl, String username, String password) {
+    }
 }
